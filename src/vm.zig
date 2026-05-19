@@ -8,10 +8,10 @@ const testing = std.testing;
 const MEMORY_SIZE = 1 << 16; // u16 addresses (65 536 words)
 
 const Region = struct {
-    start: u16, // word address
-    size: u16, // number of u32 words
+    start: u32, // word address
+    size: u32, // number of u32 words
 
-    pub fn end(self: Region) u16 {
+    pub fn end(self: Region) u32 {
         return self.start + self.size;
     }
 };
@@ -72,6 +72,26 @@ pub const VM = struct {
             },
         }
         self.pc += 1;
+    }
+
+    pub inline fn setPixel(self: *VM, x: usize, y: usize, color_idx: u8) void {
+        const pixel_idx = y * 128 + x;
+        const word_idx = VRAM.start + (pixel_idx / 4);
+        const byte_offset = pixel_idx % 4;
+
+        const shift = @as(u5, @intCast((3 - byte_offset) * 8));
+        const mask = ~(@as(u32, 0xFF) << shift);
+        const color_word = @as(u32, color_idx) << shift;
+
+        self.memory[word_idx] = (self.memory[word_idx] & mask) | color_word;
+    }
+    pub inline fn getPixel(self: *VM, x: usize, y: usize) u8 {
+        const pixel_idx = y * 128 + x;
+        const word_idx = VRAM.start + (pixel_idx / 4);
+        const byte_offset = pixel_idx % 4;
+
+        const shift = @as(u5, @intCast((3 - byte_offset) * 8));
+        return @as(u8, @truncate(self.memory[word_idx] >> shift));
     }
 };
 
