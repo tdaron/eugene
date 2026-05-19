@@ -49,6 +49,11 @@ pub const VM = struct {
     registers: [1 << 5]u32,
 
     fn process_instruction(self: *VM, raw_instruction: u32) void {
+        // The R0 register MUST ALWAYS be ZERO valued.
+        // this allows mov r1, r2 to be replaced by ADD R1, R2, r0 for instance
+        // simplifying instructions.
+        self.registers[0] = 0;
+
         // header = [opcode: u6 | mode: u3]
         const instr: Instruction = @bitCast(raw_instruction);
         const header = instr.header();
@@ -67,10 +72,6 @@ pub const VM = struct {
             },
         }
         self.pc += 1;
-        // The R0 register MUST ALWAYS be ZERO valued.
-        // this allows mov r1, r2 to be replaced by ADD R1, R2, r0 for instance
-        // simplifying instructions.
-        self.registers[0] = 0;
     }
 };
 
@@ -117,6 +118,18 @@ test "immediate mov" {
     const inst = ImmediateInstr{ .header = .{ .opcode = Opcode.mov }, .reg = 3, .immediate = 67 };
     vm.process_instruction(@bitCast(inst));
     try testing.expect(vm.registers[3] == 67);
+}
+
+test "register mov via R0" {
+    var vm = VM{ .memory = undefined, .pc = 0, .registers = undefined };
+    vm.registers[3] = 7; // Source register
+
+    // R1 = 3 (Source), R2 = 0 (R0 constant), dest = 5 (Destination)
+    // Computes: R5 = R3 + R0 (7 + 0)
+    const inst = RInstr{ .header = .{ .opcode = Opcode.add }, .r1 = 3, .r2 = 0, .dest = 5 };
+
+    vm.process_instruction(@bitCast(inst));
+    try testing.expect(vm.registers[5] == 7);
 }
 
 test "load instruction" {
