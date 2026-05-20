@@ -1,9 +1,11 @@
 const std = @import("std");
 pub const vm = @import("vm.zig");
+pub const assembler = @import("assembler.zig");
 const testing = std.testing;
 
 export fn add(a: i32, b: i32) i32 {
     _ = vm;
+    _ = assembler;
     return a + b;
 }
 
