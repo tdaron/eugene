@@ -43,8 +43,11 @@ pub const Opcode = enum(u6) {
     mov,
     store,
 };
+
+pub const VMMemory = [MEMORY_SIZE]u32;
+
 pub const VM = struct {
-    memory: [MEMORY_SIZE]u32,
+    memory: VMMemory,
     pc: u16,
     registers: [1 << 5]u32,
 
