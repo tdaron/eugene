@@ -13,7 +13,7 @@ const AssemblerError = error{
 
 const Cursor = struct {
     data: []const u8,
-
+    writer: *std.Io.Writer,
     pos: usize = 0,
     line: usize = 0,
     col: usize = 0,
@@ -83,7 +83,7 @@ const Cursor = struct {
         return rest;
     }
 
-    fn printPosition(self: *Cursor) void {
+    fn printPosition(self: *Cursor) !void {
         var lineStart: usize = 0;
         for (0..self.line) |_| {
             const index = (std.mem.findScalarPos(u8, self.data, lineStart, '\n') orelse 0);
@@ -92,14 +92,14 @@ const Cursor = struct {
 
         const EOL = std.mem.findScalarPos(u8, self.data, lineStart, '\n') orelse self.data.len;
 
-        std.debug.print("{s}\n", .{self.data[lineStart..EOL]});
+        try self.writer.print("{s}\n", .{self.data[lineStart..EOL]});
         for (0..@max(self.col - self.previousConsumeLength - 1, 0)) |_| {
-            std.debug.print(" ", .{});
+            try self.writer.print(" ", .{});
         }
         for (0..@max(self.previousConsumeLength, 3)) |_| {
-            std.debug.print("^", .{});
+            try self.writer.print("^", .{});
         }
-        std.debug.print("\n", .{});
+        try self.writer.print("\n", .{});
     }
 };
 
@@ -153,7 +153,7 @@ const Assembler = struct {
                 return parseImmediateInstruction(opcode, cursor);
             },
             else => {
-                std.debug.print("unsupported opcode: {s}\n", .{raw_opcode});
+                try cursor.writer.print("unsupported opcode: {s}\n", .{raw_opcode});
                 return AssemblerError.InvalidOpcode;
             },
         }
@@ -162,14 +162,14 @@ const Assembler = struct {
         const ftoken = cursor.consumeUntil(' ') catch return null;
         return self.parse_instruction(ftoken, cursor);
     }
-    fn assemble(self: *Assembler, assembly: []const u8) !vm.VMMemory {
+    fn assemble(self: *Assembler, output: *std.Io.Writer, assembly: []const u8) !vm.VMMemory {
         var memory: vm.VMMemory = undefined;
         var pos: u16 = 0;
-        var cursor = Cursor{ .data = assembly };
+        var cursor = Cursor{ .data = assembly, .writer = output };
 
         while (self.parse_line(&cursor) catch |err| {
-            std.debug.print("{any}\n", .{err});
-            cursor.printPosition();
+            try cursor.writer.print("{any}\n", .{err});
+            try cursor.printPosition();
             return err;
         }) |instruction| {
             memory[pos] = instruction;
@@ -180,9 +180,15 @@ const Assembler = struct {
     }
 };
 
-test "assembler add" {
+pub fn assembleFromTest(code: []const u8) !vm.VMMemory {
     var assembler = Assembler{};
-    const memory = try assembler.assemble(
+    var err_buf: [1024]u8 = undefined;
+    var stderr: std.Io.Writer = .fixed(&err_buf);
+    return assembler.assemble(&stderr, code);
+}
+
+test "assembler add" {
+    const memory = try assembleFromTest(
         \\add s2, s3, s7
     );
     const first: u32 = @bitCast(vm.RInstr{
@@ -195,8 +201,7 @@ test "assembler add" {
 }
 
 test "assembler mov" {
-    var assembler = Assembler{};
-    const memory = try assembler.assemble(
+    const memory = try assembleFromTest(
         \\mov s1, #67
     );
     const a = 5;
@@ -211,14 +216,15 @@ test "assembler mov" {
 
 test "error 1" {
     var assembler = Assembler{};
-    const memory = try assembler.assemble(
-        \\add s1, s2, s2
-        \\load s1, s8, #7
-    );
-    const first: u32 = @bitCast(vm.ImmediateInstr{
-        .header = .{ .opcode = .mov },
-        .immediate = 67,
-        .reg = 1,
-    });
-    try testing.expect(memory[0] == first);
+    var err_buf: [1024]u8 = undefined;
+    var stderr: std.Io.Writer = .fixed(&err_buf);
+    _ = assembler.assemble(&stderr,
+        \\add s1, s2, s
+        \\add s1, s8, #7
+    ) catch null;
+
+    testing.expect(std.mem.containsAtLeast(u8, err_buf[0..stderr.end], 1, "error.InvalidCharacter")) catch |err| {
+        std.debug.print("{s}\n", .{err_buf[0..stderr.end]});
+        return err;
+    };
 }
