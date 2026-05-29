@@ -75,7 +75,7 @@ const Cursor = struct {
     fn consumeTrimmedUntil(self: *Cursor, token: u8) ![]const u8 {
         var rest = try self.consumeUntil(token);
         rest = std.mem.trim(u8, rest, " \t\r\n");
-        if (rest.len == 0) {
+        if (rest.len == 0 and token != '\n') {
             return AssemblerError.UnexpectedEOL;
         }
         self.previousConsumeLength = rest.len;
@@ -93,8 +93,10 @@ const Cursor = struct {
         const EOL = std.mem.findScalarPos(u8, self.data, lineStart, '\n') orelse self.data.len;
 
         try self.writer.print("{s}\n", .{self.data[lineStart..EOL]});
-        for (0..@max(self.col - self.previousConsumeLength - 1, 0)) |_| {
-            try self.writer.print(" ", .{});
+        if (self.previousConsumeLength > self.col) {
+            for (0..@max(self.col - self.previousConsumeLength - 1, 0)) |_| {
+                try self.writer.print(" ", .{});
+            }
         }
         for (0..@max(self.previousConsumeLength, 3)) |_| {
             try self.writer.print("^", .{});
@@ -112,7 +114,7 @@ fn parse_opcode(raw_opcode: []const u8) !vm.Opcode {
     return AssemblerError.InvalidOpcode;
 }
 
-const Assembler = struct {
+pub const Assembler = struct {
     inline fn parseRegister(cursor: *Cursor) !u5 {
         const op = cursor.consumeTrimmedUntil(',') catch return AssemblerError.MissingRegister;
         if (op[0] != 's') return AssemblerError.InvalidRegister;
@@ -135,9 +137,9 @@ const Assembler = struct {
 
         // get 3 operands
 
+        instr.dest = try parseRegister(cursor);
         instr.r1 = try parseRegister(cursor);
         instr.r2 = try parseRegister(cursor);
-        instr.dest = try parseRegister(cursor);
 
         return @bitCast(instr);
     }
@@ -152,6 +154,9 @@ const Assembler = struct {
             .mov => {
                 return parseImmediateInstruction(opcode, cursor);
             },
+            .halt => {
+                return @bitCast(vm.RInstr{ .header = .{ .opcode = .halt } });
+            },
             else => {
                 try cursor.writer.print("unsupported opcode: {s}\n", .{raw_opcode});
                 return AssemblerError.InvalidOpcode;
@@ -159,10 +164,14 @@ const Assembler = struct {
         }
     }
     fn parse_line(self: *Assembler, cursor: *Cursor) !?u32 {
-        const ftoken = cursor.consumeUntil(' ') catch return null;
+        if (cursor.pos >= cursor.data.len) return null;
+        while (cursor.pos < cursor.data.len and cursor.data[cursor.pos] == ' ') {
+            cursor.pos += 1;
+        }
+        const ftoken = try cursor.consumeUntil(' ');
         return self.parse_instruction(ftoken, cursor);
     }
-    fn assemble(self: *Assembler, output: *std.Io.Writer, assembly: []const u8) !vm.VMMemory {
+    pub fn assemble(self: *Assembler, output: *std.Io.Writer, assembly: []const u8) !vm.VMMemory {
         var memory: vm.VMMemory = undefined;
         var pos: u16 = 0;
         var cursor = Cursor{ .data = assembly, .writer = output };

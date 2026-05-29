@@ -42,6 +42,7 @@ pub const Opcode = enum(u6) {
     load,
     mov,
     store,
+    halt,
 };
 
 pub const VMMemory = [MEMORY_SIZE]u32;
@@ -50,6 +51,7 @@ pub const VM = struct {
     memory: VMMemory,
     pc: u16,
     registers: [1 << 5]u32,
+    halted: bool = false,
 
     fn process_instruction(self: *VM, raw_instruction: u32) void {
         // The R0 register MUST ALWAYS be ZERO valued.
@@ -73,8 +75,17 @@ pub const VM = struct {
             Opcode.add => {
                 self.registers[instr.r.dest] = self.registers[instr.r.r1] + self.registers[instr.r.r2];
             },
+            Opcode.halt => {
+                self.halted = true;
+            },
         }
         self.pc += 1;
+    }
+
+    pub fn run(self: *VM) !void {
+        while (!self.halted) {
+            self.process_instruction(self.memory[self.pc]);
+        }
     }
 
     pub inline fn setPixel(self: *VM, x: usize, y: usize, color_idx: u8) void {
