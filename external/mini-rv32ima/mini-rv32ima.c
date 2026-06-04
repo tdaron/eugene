@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <math.h>
 
 #include "default64mbdtc.h"
@@ -210,7 +211,7 @@ restart:
 		int ret = MiniRV32IMAStep( core, ram_image, 0, elapsedUs, instrs_per_flip ); // Execute upto 1024 cycles before breaking out.
 		switch( ret )
 		{
-			case 0: break;
+			case 0: if (do_sleep) MiniSleep(); break;
 			case 1: if( do_sleep ) MiniSleep(); *this_ccount += instrs_per_flip; break;
 			case 3: instct = 0; break;
 			case 0x7777: goto restart;	//syscon code for restart
@@ -433,11 +434,11 @@ static void HandleOtherCSRWrite( uint8_t * image, uint16_t csrno, uint32_t value
 {
 	if( csrno == 0x136 )
 	{
-		printf( "%d", value ); fflush( stdout );
+		printf( "%d\n", value ); fflush( stdout );
 	}
 	if( csrno == 0x137 )
 	{
-		printf( "%08x", value ); fflush( stdout );
+		printf( "%08x\n", value ); fflush( stdout );
 	}
 	else if( csrno == 0x138 )
 	{

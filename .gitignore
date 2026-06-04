@@ -1,0 +1,6 @@
+build
+dst/
+build.old
+main
+*.o
+*.bin
