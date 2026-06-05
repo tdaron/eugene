@@ -9,6 +9,10 @@ _start:
         call printf
 
         call call_constructors
+
+        la a0, trap_routine
+        call setup_traps # platform specific
+
         call kernel_main
 
 loop:
@@ -16,8 +20,13 @@ loop:
         j loop
 
 
-
-
+trap_routine:
+        addi sp, sp, -16
+        sw ra, 12(sp)
+        call kernel_trap
+        lw ra, 12(sp)
+        addi sp, sp, 16
+l:
+        j l
 .section .rodata
 booted: .string "[KERNEL] Hello ! \n"
-constr: .string "[KERNEL] Calling init functions.\n"
