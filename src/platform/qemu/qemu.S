@@ -1,7 +1,10 @@
 #ifdef QEMU
-.global putc, setup_traps
+.global putc, setup_traps, init_platform
 
 .equ UART_BASE, 0x10000000
+
+init_platform:
+        ret
 
 putc:
         li t0, UART_BASE

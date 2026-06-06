@@ -2,16 +2,7 @@
 #include <eugene/macros.h>
 #include <strings.h>
 #include <arch/riscv32/csr.h> // TODO: Remove arch depenency here
-void call_constructors();
-void setup_traps();
-
-void kernel_main() {
-	setup_traps();
-	call_constructors();
-	printf("[KERNEL] Booting..\n");
-	printf("[KERNEL] Done !\n");
-}
-
+#include <platform/platform.h>
 
 void trap_unknown() {
     u32 mcause = READ_CSR(mcause);
@@ -36,4 +27,10 @@ void call_constructors() {
   }
 }
 
-
+void kernel_main() {
+	init_platform();
+	setup_traps();
+	call_constructors();
+	printf("[KERNEL] Booting..\n");
+	printf("[KERNEL] Done !\n");
+}
