@@ -1,7 +1,2 @@
-build
 .cache
-dst/
-build.old
-main
-*.o
-*.bin
+out/

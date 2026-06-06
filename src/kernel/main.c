@@ -1,5 +1,7 @@
-#include <common.h>
-
+#include <eugene/types.h>
+#include <eugene/macros.h>
+#include <strings.h>
+#include <arch/riscv32/csr.h> // TODO: Remove arch depenency here
 void call_constructors();
 void setup_traps();
 

@@ -1,31 +1,33 @@
 #pragma once
 
-// TYPES
+#include <eugene/types.h>
 
-typedef unsigned int u32;
-typedef unsigned char u8;
+static inline u32 csr_read_mstatus(void)
+{
+    u32 v;
+    __asm__ volatile ("csrr %0, mstatus" : "=r"(v));
+    return v;
+}
 
-#define va_list  __builtin_va_list
-#define va_start __builtin_va_start
-#define va_end   __builtin_va_end
-#define va_arg   __builtin_va_arg
+static inline void csr_write_mstatus(u32 v)
+{
+    __asm__ volatile ("csrw mstatus, %0" :: "r"(v));
+}
 
-// STD LIB
+static inline void csr_enable_interrupts(void)
+{
+    __asm__ volatile ("csrsi mstatus, 8");
+}
 
-void printf(const char *fmt, ...);
+static inline void csr_disable_interrupts(void)
+{
+    __asm__ volatile ("csrci mstatus, 8");
+}
 
-int strlen(const char *string);
-void putc(char a);
-
-
-
-// MACROS
-
-#define PANIC(fmt, ...) \
-  do { \
-    printf("PANIC: %s:%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__);  \
-    while (1) {}; \
-  } while (0); \
+static inline void csr_wfi(void)
+{
+    __asm__ volatile ("wfi");
+}
 
 #define READ_CSR(reg)                                                          \
     ({                                                                         \
@@ -39,18 +41,3 @@ void putc(char a);
         u32 __tmp = (value);                                              \
         __asm__ __volatile__("csrw " #reg ", %0" ::"r"(__tmp));                \
     } while (0)
-
-#define BIT(n) (1 << (n))
-static inline void mmio_write_field(
-    volatile u32 *reg,
-    unsigned shift,
-    unsigned width,
-    u32 value
-) {
-    u32 mask = ((1 << width) - 1) << shift;
-
-    u32 r = *reg;
-    r &= ~mask;
-    r |= (value << shift) & mask;
-    *reg = r;
-}
