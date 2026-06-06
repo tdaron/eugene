@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xue 
 CC=clang
-CFLAGS="-std=c11 -Wall -Wextra --target=riscv32-unknown-elf -mabi=ilp32 -march=rv32ima_zicsr -fno-stack-protector -ffreestanding -nostdlib"
+CFLAGS="-std=c11 -Os -Wall -Wextra --target=riscv32-unknown-elf -mabi=ilp32 -march=rv32ima_zicsr -fno-stack-protector -ffreestanding -nostdlib"
 SOURCES="$(find src -name '*.s' -o -name '*.c' -o -name '*.S')"
 mkdir -p dst
 build() {
@@ -14,6 +14,8 @@ build() {
 build_esp32() {
   $CC $CFLAGS -Wl,-Tlinker.esp32.ld $SOURCES -Iinclude -o dst/eugene "$@"
   clang external/mini-rv32ima/*.c -o dst/vm
+  llvm-objcopy -O binary dst/eugene dst/eugene.bin.objcpy
+
   
 }
 
