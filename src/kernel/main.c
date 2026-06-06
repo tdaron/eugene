@@ -4,11 +4,10 @@ void call_constructors();
 void setup_traps();
 
 void kernel_main() {
+	setup_traps();
 	call_constructors();
 	printf("[KERNEL] Booting..\n");
-	printf("[KERNEL] Registering traps..\n");
-	setup_traps();
-	printf("[KERNEL] Boot successfull !\n");
+	printf("[KERNEL] Done !\n");
 }
 
 

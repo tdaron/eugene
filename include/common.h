@@ -13,6 +13,7 @@ typedef unsigned char u8;
 // STD LIB
 
 void printf(const char *fmt, ...);
+
 int strlen(const char *string);
 void putc(char a);
 
@@ -38,3 +39,18 @@ void putc(char a);
         u32 __tmp = (value);                                              \
         __asm__ __volatile__("csrw " #reg ", %0" ::"r"(__tmp));                \
     } while (0)
+
+#define BIT(n) (1 << (n))
+static inline void mmio_write_field(
+    volatile u32 *reg,
+    unsigned shift,
+    unsigned width,
+    u32 value
+) {
+    u32 mask = ((1 << width) - 1) << shift;
+
+    u32 r = *reg;
+    r &= ~mask;
+    r |= (value << shift) & mask;
+    *reg = r;
+}
