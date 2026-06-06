@@ -4,14 +4,6 @@
 
 _start:
         la sp, __stack_top # setup stack pointer
-                 
-        call call_constructors
-                
-        call setup_traps
-        
-        la a0, booted
-        call printf
-
         call kernel_main
 
 

@@ -1,15 +1,14 @@
 #include <common.h>
 
+void call_constructors();
+void setup_traps();
 
 void kernel_main() {
-	printf("Hello from C code ! \n");
-	// printf("Trying to trap !\n");
-	printf("My favorite number is %d\n", 67);
-
-	__asm__ volatile(
-	"ecall\n"
-	);
-	printf("done !\n");
+	call_constructors();
+	printf("[KERNEL] Booting..\n");
+	printf("[KERNEL] Registering traps..\n");
+	setup_traps();
+	printf("[KERNEL] Boot successfull !\n");
 }
 
 
