@@ -1,6 +1,5 @@
 #include <eugene/types.h>
 #include <eugene/macros.h>
-#include <strings.h>
 #include <arch/riscv32/csr.h> // TODO: Remove arch depenency here
 #include <platform/platform.h>
 

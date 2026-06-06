@@ -1,6 +1,6 @@
 #include <eugene/types.h>
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 
 void printf(const char *fmt, ...) {
   va_list args;
