@@ -9,12 +9,13 @@ void kernel_main() {
 	__asm__ volatile(
 	"ecall\n"
 	);
+	printf("done !\n");
 }
 
 
-void kernel_trap() {
-    u32 scause = READ_CSR(mcause);
-    u32 stval = READ_CSR(mtval);
-    u32 user_pc = READ_CSR(mepc);
-    PANIC("unexpected trap scause=%x, stval=%x, sepc=%x\n", scause, stval, user_pc);
+void trap_unknown() {
+    u32 mcause = READ_CSR(mcause);
+    u32 mtval = READ_CSR(mtval);
+    u32 mepc = READ_CSR(mepc);
+    PANIC("unexpected trap mcause=%x, mtval=%x, mepc=%x\n", mcause, mtval, mepc);
 }
