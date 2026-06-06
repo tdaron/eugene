@@ -3,7 +3,8 @@
 
 void kernel_main() {
 	printf("Hello from C code ! \n");
-	printf("Trying to trap !\n");
+	// printf("Trying to trap !\n");
+	printf("My favorite number is %d\n", 67);
 
 	__asm__ volatile(
 	"ecall\n"

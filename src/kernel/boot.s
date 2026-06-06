@@ -5,10 +5,12 @@
 _start:
         la sp, __stack_top # setup stack pointer
                  
+
+        call call_constructors
+                
         la a0, booted
         call printf
 
-        call call_constructors
 
         la a0, trap_routine
         call setup_traps # platform specific
