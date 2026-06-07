@@ -28,7 +28,7 @@ SECTIONS
 
     .data : {
         *(.data*)
-    } > DRAM
+    } > IRAM
 
 
     .bss : {

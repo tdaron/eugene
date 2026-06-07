@@ -2,7 +2,7 @@
 
 # https://github.com/cnlohr/mini-rv32ima
 
-.global putc, setup_traps, init_platform
+.global putc, setup_traps, init_platform, platform_name
 .equ UART_BASE, 0x10000000
 
 init_platform:
@@ -28,6 +28,6 @@ setup_traps:
         ret
 
 traps: .string "[RV32IMA] Traps set-up\n"
-        
+platform_name: .string "mini-rv32ima"        
         
 #endif

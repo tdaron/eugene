@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WASM Loader</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 720px;
+      margin: 64px auto;
+      padding: 0 24px;
+      line-height: 1.5;
+    }
+    pre {
+      padding: 16px;
+      border: 1px solid #ddd;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>WASM Loader</h1>
+
+  <p>Select a <code>.wasm</code> file to load it in the browser.</p>
+
+  <input id="file" type="file" accept=".wasm,application/wasm">
+  <pre id="log">No file loaded.</pre>
+
+  <script>
+    const fileInput = document.getElementById("file");
+    const log = document.getElementById("log");
+
+    function write(message) {
+      log.textContent += "\\n" + message;
+    }
+
+    fileInput.addEventListener("change", async () => {
+      log.textContent = "";
+
+      const file = fileInput.files[0];
+      if (!file) {
+        log.textContent = "No file selected.";
+        return;
+      }
+
+      try {
+        write(`Reading ${file.name}...`);
+
+        const bytes = await file.arrayBuffer();
+
+        const imports = {
+          env: {
+            memory: new WebAssembly.Memory({ initial: 1 }),
+            abort: () => console.error("WASM abort called")
+          }
+        };
+
+        const result = await WebAssembly.instantiate(bytes, imports);
+        const instance = result.instance;
+
+        write("WASM loaded.");
+        write("Exported functions / values:");
+        write(Object.keys(instance.exports).join("\\n") || "(none)");
+
+        window.wasmInstance = instance;
+        write("\\nInstance available as window.wasmInstance.");
+
+      } catch (error) {
+        log.textContent = "Failed to load WASM:\\n" + error.stack;
+      }
+    });
+  </script>
+</body>
+</html>

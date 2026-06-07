@@ -17,4 +17,9 @@ void init_platform() {
   disable_timg0_wdt();
   enable_t0_timer();
 }
+
+char platform_name[] = "esp32c3";       
+
+
+
 #endif

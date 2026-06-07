@@ -1,5 +1,5 @@
 #ifdef QEMU
-.global putc, setup_traps, init_platform
+.global putc, setup_traps, init_platform, platform_name
 
 .equ UART_BASE, 0x10000000
 
@@ -26,5 +26,5 @@ setup_traps:
         ret
 
 traps: .string "[QEMU] Traps set-up\n"
-        
+platform_name: .string "qemu"        
 #endif
