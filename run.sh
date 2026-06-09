@@ -7,21 +7,16 @@ CFLAGS="-std=c11 -Os -Wall -Wextra --target=riscv32-unknown-elf
        -nostdlib"
 SOURCES="$(find src -name '*.s' -o -name '*.c' -o -name '*.S')"
 mkdir -p out
+
 build() {
   $CC $CFLAGS -Wl,-Tlinker.ld $SOURCES -o out/eugene "$@"
   llvm-objcopy -O binary out/eugene out/eugene.bin
-
-  clang external/mini-rv32ima/*.c -o out/vm
-  
+  clang external/mini-rv32ima/*.c -o out/vm 
 }
+
 build_esp32() {
   $CC $CFLAGS -Wl,-Tlinker.esp32.ld $SOURCES -o out/eugene "$@"
-  clang external/mini-rv32ima/*.c -o out/vm
-  llvm-objcopy -O binary out/eugene out/eugene.bin.objcpy
-
-  
 }
-
 
 if [ $1 == "run" ]; then
   build -DRV32IMA
@@ -32,6 +27,7 @@ if [ $1 == "qemu" ]; then
   build -DQEMU
   qemu-system-riscv32 -machine virt -bios none -nographic -kernel out/eugene
 fi
+
 if [ $1 == "esp32" ]; then
   build_esp32 -DESP32
   esptool.py --chip esp32c3 elf2image out/eugene
@@ -43,7 +39,6 @@ if [ $1 == "esp32" ]; then
     --flash_size 4MB \
     0x0 out/eugene.bin
     picocom /dev/ttyACM0
-
 fi
 
 
