@@ -7,3 +7,4 @@ typedef unsigned char u8;
 #define va_start __builtin_va_start
 #define va_end   __builtin_va_end
 #define va_arg   __builtin_va_arg
+#define MAX_U32 0xFFFFFFFF

@@ -10,6 +10,10 @@ void trap_unknown() {
   PANIC("unexpected trap mcause=%x, mtval=%x, mepc=%x\n", mcause, mtval, mepc);
 }
 
+void timer_interrupt() {
+  
+}
+
 typedef void (*constructor)();
 
 extern constructor __init_array_start[];
@@ -32,5 +36,6 @@ void kernel_main() {
   call_constructors();
   printf("[KERNEL] Booting..\n");
   printf("[KERNEL] Platform: %s\n", platform_name);
+  alarm_millis(5000);
   printf("[KERNEL] Done !\n");
 }

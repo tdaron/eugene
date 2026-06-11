@@ -21,6 +21,8 @@ setup_traps:
         la a0, traps
         call printf
 
+        call setup_timer
+
         lw ra, 12(sp)
         addi sp, sp, 16
         ret

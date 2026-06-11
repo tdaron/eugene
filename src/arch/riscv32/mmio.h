@@ -15,3 +15,20 @@ static inline void mmio_write_field(
     r |= (value << shift) & mask;
     *reg = r;
 }
+
+static inline void add_u64_parts(
+    u32 a_lo,
+    u32 a_hi,
+    u32 b_lo,
+    u32 b_hi,
+    u32 *out_lo,
+    u32 *out_hi
+) {
+    u32 lo = a_lo + b_lo;
+    u32 carry = (lo < a_lo);
+
+    u32 hi = a_hi + b_hi + carry;
+
+    *out_lo = lo;
+    *out_hi = hi;
+}
