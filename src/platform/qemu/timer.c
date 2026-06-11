@@ -22,8 +22,9 @@ void alarm_millis(u32 millis) {
 	unsigned int cmp_lo, cmp_hi;
 	add_u64_parts(CLINT_MTIME_LO, CLINT_MTIME_HI, delay, 0, &cmp_lo, &cmp_hi);
 
-	CLINT_MTIMECMP_LO = cmp_lo;
+    CLINT_MTIMECMP_LO = 0xffffffff;
 	CLINT_MTIMECMP_HI = cmp_hi;
+	CLINT_MTIMECMP_LO = cmp_lo;
 	
 }
 

@@ -3,16 +3,21 @@
 #include <eugene/types.h>
 #include <platform/platform.h>
 
-void trap_unknown() {
+void timer_interrupt() {
+  printf("[KERNEL] Timer \n");
+  alarm_millis(500);
+}
+
+void trap_handler() {
   u32 mcause = READ_CSR(mcause);
   u32 mtval = READ_CSR(mtval);
   u32 mepc = READ_CSR(mepc);
+  if (mcause == 0x80000007) {
+    return timer_interrupt();
+  }
   PANIC("unexpected trap mcause=%x, mtval=%x, mepc=%x\n", mcause, mtval, mepc);
 }
 
-void timer_interrupt() {
-  
-}
 
 typedef void (*constructor)();
 
@@ -36,6 +41,6 @@ void kernel_main() {
   call_constructors();
   printf("[KERNEL] Booting..\n");
   printf("[KERNEL] Platform: %s\n", platform_name);
-  alarm_millis(5000);
+  alarm_millis(500);
   printf("[KERNEL] Done !\n");
 }
