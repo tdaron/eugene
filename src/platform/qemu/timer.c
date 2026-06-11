@@ -1,8 +1,8 @@
+#ifdef QEMU
 #include "arch/riscv32/mmio.h"
 #include "eugene/types.h"
 #include <platform/qemu/memory_map.h>
 #include <arch/riscv32/csr.h>
-#include <stdio.h>
 
 
 #define FREQUENCY 10000000
@@ -36,3 +36,4 @@ void setup_timer() {
 	csr_enable_machine_timer_interrupt();
 
 }
+#endif
