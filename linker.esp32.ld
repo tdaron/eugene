@@ -13,12 +13,14 @@ STACK_BOTTOM = STACK_TOP - STACK_SIZE;
 SECTIONS
 {
     .text : {
+        . = ALIGN(4);
         KEEP(*(.text.boot))
         *(.text*)
         *(.rodata*)
     } > IRAM
 
     .init_array : {
+        . = ALIGN(4);
         __init_array_start = .;
         KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*)))
         KEEP(*(.init_array))
@@ -32,8 +34,11 @@ SECTIONS
 
 
     .bss : {
+        __bss_start = .;
         *(.bss*)
         *(COMMON)
+        __bss_end = .;
+
     } > DRAM
 
     . = ALIGN(16);

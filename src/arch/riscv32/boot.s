@@ -53,7 +53,7 @@ trap_return:
         lw t0, 56(sp)
         lw ra, 60(sp)
         
-        addi sp, sp, 16
+        addi sp, sp, 64
         mret
 
 

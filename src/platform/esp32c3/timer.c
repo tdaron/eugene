@@ -1,7 +1,12 @@
 #ifdef ESP32
+#include "platform/platform.h"
 #include <platform/esp32c3/memory_map.h>
 #include <platform/esp32c3/interrupts.h>
 
+
+void alarm_millis(u32 millis) {
+  
+}
 
 void disable_timg0_wdt(void) {
   TIMG_WDTWPROTECT = WDT_UNLOCK_KEY;

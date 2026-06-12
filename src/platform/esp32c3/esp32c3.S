@@ -18,7 +18,7 @@ trap_vector:
 
         j timer_routine
         .rept 30
-        j trap_unknown         # slots 1..31: interrupts
+        j trap_handler         # slots 1..31: interrupts
         .endr
 .option pop
 
