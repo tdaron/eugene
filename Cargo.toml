@@ -1,0 +1,16 @@
+[package]
+name = "eugene_os"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name ="eugene_os"
+crate-type = ["staticlib"]
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+[dependencies]
+panic-halt = "1.0.0"

@@ -16,26 +16,19 @@ trap_vector:
 .option norvc              # force 4-byte entries in the vector table
         j trap_routine      # slot 0: exceptions, including ecall
 
-        j timer_routine
+        j trap_routine    # timer
         .rept 30
-        j trap_handler         # slots 1..31: interrupts
+        j trap_routine         # slots 1..31: interrupts
         .endr
 .option pop
 
 
 timer_routine:
-        addi sp, sp, -16
-        sw a0, 12(sp)
-        sw ra, 8(sp)
         call clear_timer
-        la a0, timer
-        call printf
-        lw a0, 12(sp)
-        lw ra, 8(sp)
-        addi sp, sp, 16
-        mret
+        li a0, 0x80000007
+        csrw mcause, a0
+        j trap_routine
 
-timer: .string "[ESP32] Timer !\n"
 
 
 #endif

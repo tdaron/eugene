@@ -5,16 +5,18 @@ CFLAGS="-std=c11 -Os -Wall -Wextra --target=riscv32-unknown-elf
         -mabi=ilp32 -march=rv32ima_zicsr -fno-stack-protector -ffreestanding
         -Iinclude -Isrc -nostdinc
        -nostdlib"
-SOURCES="$(find src -name '*.s' -o -name '*.c' -o -name '*.S')"
+SOURCES="$(find src -name '*.s' -o -name '*.c' -o -name '*.S') ./target/riscv32im-unknown-none-elf/debug/*.a"
 mkdir -p out
 
 build() {
+  cargo build
   $CC $CFLAGS -Wl,-Tlinker.ld $SOURCES -o out/eugene "$@"
   llvm-objcopy -O binary out/eugene out/eugene.bin
   clang external/mini-rv32ima/*.c -o out/vm 
 }
 
 build_esp32() {
+  cargo build
   $CC $CFLAGS -Wl,-Tlinker.esp32.ld $SOURCES -o out/eugene "$@"
 }
 

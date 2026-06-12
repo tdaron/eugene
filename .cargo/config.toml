@@ -1,0 +1,4 @@
+[build]
+target="riscv32im-unknown-none-elf"
+
+

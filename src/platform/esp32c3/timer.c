@@ -4,9 +4,6 @@
 #include <platform/esp32c3/interrupts.h>
 
 
-void alarm_millis(u32 millis) {
-  
-}
 
 void disable_timg0_wdt(void) {
   TIMG_WDTWPROTECT = WDT_UNLOCK_KEY;
@@ -16,7 +13,7 @@ void disable_timg0_wdt(void) {
 
 void enable_t0_timer() {
   set_interrupt_threshold(0);
-  route_interrupt(&INTR_TG_T0_MAP, 1, 1);
+  route_interrupt(&INTR_TG_T0_MAP, 7, 1);
 
   // TIMG_T0_EN (bit 31) - stop timer
   mmio_write_field(&TIMG0_T0_CONF, 31, 1, 0);
@@ -63,6 +60,10 @@ void enable_t0_timer() {
 void clear_timer() {
   mmio_write_field(&TIMG0_INT_CLR_TIMERS, 0, 1, 1);
   mmio_write_field(&TIMG0_T0_CONF, 10, 1, 1);
-
 }
+void alarm_millis(u32 millis) {
+  //TODO: Fix this bruh
+ clear_timer(); 
+}
+
 #endif

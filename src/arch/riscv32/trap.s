@@ -142,4 +142,4 @@ trap_routine:
         # Restore interrupted SP.
         lw sp,  TF_SP(sp)
 
-mret
+        mret

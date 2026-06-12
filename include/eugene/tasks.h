@@ -9,7 +9,7 @@ typedef struct {
 
 
 Task* create_task(char* name, void (*function)(void*), void* data);
-#define TASKS_COUNT 256
+#define TASKS_COUNT 3
 extern Task TASKS[TASKS_COUNT];
 extern u32 task_count;
 extern u32 running_task;

@@ -10,7 +10,7 @@ extern char __heap_start[];
 extern char __heap_end[];
 u32 allocated = 0;
 
-#define STACK_SIZE 256
+#define STACK_SIZE 2048
 
 void *malloc(u32 size) {
   printf("size: %x allocated: %x\n", size, allocated);
@@ -58,6 +58,7 @@ TrapFrame* trap_handler(TrapFrame *tf) {
     timer_interrupt();
     TASKS[running_task].tf = (u32*)tf;
     running_task = (running_task + 1) % task_count;
+    // printf("switching to task: %d tf: %x\n", running_task, tf);
     return (TrapFrame*)TASKS[running_task].tf;
   }
 
