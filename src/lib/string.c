@@ -7,3 +7,8 @@ int strlen(const char *string) {
   return i;
 }
 
+void memset(void* ptr, char value, u32 size) {
+  for (u32 i = 0; i < size; i++) {
+    ((char*)ptr)[i] = value;
+  }
+}

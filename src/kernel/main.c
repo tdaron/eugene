@@ -24,10 +24,28 @@ void call_constructors() {
   }
 }
 
-void task() {
-  printf("HEY I AM HERE !\n");
+void delay() {
+  #ifdef QEMU
+  for (int i = 0; i < 500000000; i++) {
+    __asm__ volatile ("add x0, x0, x0");
+  }
+  #else
+  for (int i = 0; i < 100000; i++) {
+    __asm__ volatile ("add x0, x0, x0");
+  }
 
+  #endif
+}
+void taskA() {
   while (1) {
+    printf("TASK A !\n");
+    delay();
+  }
+}
+void taskB() {
+  while (1) {
+    printf("TASK B !\n");
+    delay();
   }
 }
 
@@ -38,9 +56,13 @@ void kernel_main() {
   call_constructors();
   printf("[KERNEL] Platform: %s\n", platform_name);
   alarm_millis(500);
-  printf("[KERNEL] Done !\n");
   printf("[KERNEL] %d bytes available RAM\n", __heap_end - __heap_start);
-  create_task("Simple Task", task, 0);
+  printf("[KERNEL] Done !\n");
+  create_task("Simple Task", taskA, 0);
+  create_task("Simple Task 2", taskB, 0);
+  printf("%x\n", TASKS[0].tf);
+  printf("%x\n", TASKS[1].tf);
+  syscall(67);
 }
 
 __attribute__((constructor))

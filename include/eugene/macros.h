@@ -8,3 +8,5 @@
 
 
 
+// TODO: Move this in a better header
+void syscall(int syscall);

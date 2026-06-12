@@ -96,6 +96,7 @@ trap_routine:
         # trap_handler(TrapFrame *frame)
         mv a0, sp
         call trap_handler
+        mv sp, a0
 
         trap_return:
         # Allow C trap_handler to modify return PC/status.
