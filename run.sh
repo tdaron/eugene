@@ -3,7 +3,7 @@ set -xue
 CC=clang
 CFLAGS="-std=c11 -Os -Wall -Wextra --target=riscv32-unknown-elf
         -mabi=ilp32 -march=rv32ima_zicsr -fno-stack-protector -ffreestanding
-        -Iinclude -Isrc -nostdinc
+        -Iinclude -Isrc -nostdinc -fuse-ld=lld
        -nostdlib"
 SOURCES="$(find src -name '*.s' -o -name '*.c' -o -name '*.S') ./target/riscv32im-unknown-none-elf/debug/*.a"
 mkdir -p out
